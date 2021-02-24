@@ -30,3 +30,13 @@ EVPI = mean(evpi_raw)
 # HT: Put in a matrix to avoid the loop
 nb_sampled <- matrix(c(colMeans(nb_standard[,2:1001]), colMeans(nb_vfrac[,2:1001])), ncol = 2)
 EVPI <- mean(apply(nb_sampled, c(1), max) - max(apply(nb_sampled, c(2), mean)))
+
+# Population size (female age 65+)
+base_population = 12390000*0.51
+
+# Population for 10 years
+discount = 0.035
+population = base_population + base_population*((1/(1+discount))^1) + base_population*((1/(1+discount))^2) +base_population*((1/(1+discount))^3)+base_population*((1/(1+discount))^4)+base_population*((1/(1+discount))^5)+base_population*((1/(1+discount))^6)+base_population*((1/(1+discount))^7)+base_population*((1/(1+discount))^8)+base_population*((1/(1+discount))^9)
+
+# Total EVPI
+total_EVPI = EVPI*population
