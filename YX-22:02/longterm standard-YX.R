@@ -137,10 +137,10 @@ for(a in nalist){
 }
 
 # calculate the mean QALYs of each dataset and add into Total_samples_eq5d as a new row
-Total_samples_QALYs_mean = colMeans(Total_samples_QALYs, na.rm = TRUE)
+Total_samples_QALYs_mean = colMeans(Total_samples_QALYs[,2:1001], na.rm = TRUE)
 
 # calculate the mean costs of each dataset and add into Total_samples_eq5d as a new row
-Total_samples_costs_mean = colMeans(Total_samples_costs, na.rm = TRUE)
+Total_samples_costs_mean = colMeans(Total_samples_costs[,2:1001], na.rm = TRUE)
 
 
 # Calculate the final mean of QALYs and costs
