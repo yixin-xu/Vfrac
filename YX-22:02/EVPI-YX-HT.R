@@ -36,7 +36,7 @@ base_population = 12390000*0.51
 
 # Population for 10 years
 discount = 0.035
-population = base_population + base_population*((1/(1+discount))^1) + base_population*((1/(1+discount))^2) +base_population*((1/(1+discount))^3)+base_population*((1/(1+discount))^4)+base_population*((1/(1+discount))^5)+base_population*((1/(1+discount))^6)+base_population*((1/(1+discount))^7)+base_population*((1/(1+discount))^8)+base_population*((1/(1+discount))^9)
+population = sum(base_population * ((1 / (1 + discount)^(c(0:9)))))
 
 # Total EVPI
 total_EVPI = EVPI*population
