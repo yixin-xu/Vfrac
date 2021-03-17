@@ -24,7 +24,7 @@ bfiveL_profile = data.frame(matrix(0,nrow(bProlife),1))
 
 for( i in 1:nrow(bProlife)){
   bfiveL_profile[i,1] = data.frame(paste(bProlife[i,1],bProlife[i,2],bProlife[i,3],
-                                             bProlife[i,4],bProlife[i,5],sep = ""))
+                                         bProlife[i,4],bProlife[i,5],sep = ""))
 }
 
 bfiveL_profile$`5L profile` = as.numeric(bfiveL_profile$matrix.0..nrow.bProlife...1.)
@@ -66,12 +66,10 @@ patient_infor$feq5d_score = feq5d_score
 # daily drugs dose
 average_daily_durgs_costs = 0.362*drugs_cost[1,7]+0.121*drugs_cost[2,7]+0.087*drugs_cost[3,7]+0.087*drugs_cost[4,7]+0.071*drugs_cost[5,7]+0.061*drugs_cost[6,7]+0.053*drugs_cost[7,7]+0.051*drugs_cost[8,7]
 #weekly drugs dose
-#when 13painmedfreq = 0
-weekly1 = 0
-#when 13painmedfreq = 1 
-weekly2 = average_daily_durgs_costs*3.5
-#when 13painmedfreq >= 2
-weekly3 = average_daily_durgs_costs*7
+#set distribution
+distribution1 = data.frame(runif(1429, min = 1, max = 3.5))
+distribution2 = data.frame(runif(1429, min = 3.5, max = 7))
+#
 
 
 mergecell = data.frame(patient_infor[,4:13], patient_infor[,47:56])
@@ -100,12 +98,14 @@ for (i in 1:nrow(patient_infor)){
   if (is.na(patient_infor$b28painmedfreq[i])){
     patient_infor$bcosts[i] = bcosts[i]}
   else if (patient_infor$b28painmedfreq[i] == 0){
-    patient_infor$bcosts[i] = bcosts[i]+weekly1}
+    patient_infor$bcosts[i] = bcosts[i]+0}
   else if (patient_infor$b28painmedfreq[i] == 1){
-    patient_infor$bcosts[i] = bcosts[i] + weekly2[1,1]}
+    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$runif.1429..min...1..max...3.5.[i]}
   else if (patient_infor$b28painmedfreq[i] >= 2){
-    patient_infor$bcosts[i] = bcosts[i] + weekly3[1,1]}
+    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$runif.1429..min...3.5..max...7.[i]}
 }
+
+patient_infor$bcosts = as.numeric(patient_infor$bcosts)
 
 # add follow-up costs
 patient_infor$fcosts = 0
@@ -114,11 +114,13 @@ for (i in 1:nrow(patient_infor)){
   if (is.na(patient_infor$f13painmedfreq[i])){
     patient_infor$fcosts[i] = bcosts[i]}
   else if (patient_infor$f13painmedfreq[i] == 0){
-    patient_infor$fcosts[i] = bcosts[i]+weekly1*90/7}
+    patient_infor$fcosts[i] = bcosts[i]+0}
   else if (patient_infor$f13painmedfreq[i] == 1){
-    patient_infor$fcosts[i] = bcosts[i] + weekly2[1,1]*90/7}
+    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$runif.1429..min...1..max...3.5.[i]*90/7}
   else if (patient_infor$f13painmedfreq[i] >= 2){
-    patient_infor$fcosts[i] = bcosts[i] + weekly3[1,1]*90/7}
+    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$runif.1429..min...3.5..max...7.[i]*90/7}
 }
+patient_infor$fcosts = as.numeric(patient_infor$fcosts)
 
 write.csv(patient_infor, 'results/qalys and costs.csv')
+

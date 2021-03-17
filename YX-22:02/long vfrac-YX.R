@@ -6,6 +6,7 @@ library(survival)
 
 patient_infor_raw = read.csv('results/qalys and costs.csv')
 PSA_results = read_excel('data/PSA mean costs and qalys.xlsx')
+shortterm = read.csv('results/shortterm_vfrac.csv')
 patient_infor = patient_infor_raw%>% drop_na(36)
 
 # set sample size and random data frame
@@ -38,13 +39,13 @@ for(i in 1:nrow(patient_infor)){
         patient_infor$feq5d_score[bootstrap_samples[i, ]]*0.25 + PSA_results[bootstrap_samples[i, ],5]
     } else { random_QALYs[i,1:n_samples] = patient_infor$feq5d_score[bootstrap_samples[i, ]]*0.25+PSA_results[bootstrap_samples[i, ],3]}
   }
-  else {random_QALYs[i,1:n_samples] = patient_infor$beq5d_score[bootstrap_samples[i, ]]*0.25}
-    
+  else {random_QALYs[i,1:n_samples] = shortterm$patient_infor.qalys[bootstrap_samples[i, ]]}
+  
 }
 
 nalist = c(which(rowSums(is.na(random_QALYs)) > 0))
 for(a in nalist){
-  random_QALYs[a,is.na(random_QALYs[a,])] = patient_infor$beq5d_score[bootstrap_samples[a,is.na(random_QALYs[a, -1])]]*0.25
+  random_QALYs[a,is.na(random_QALYs[a,])] = shortterm$patient_infor.qalys[bootstrap_samples[a,is.na(random_QALYs[a, ])]]
 }
 
 ### costs
@@ -56,12 +57,12 @@ for(i in 1:nrow(patient_infor)){
         patient_infor$fcosts[bootstrap_samples[i, ]] + PSA_results[bootstrap_samples[i, ],4]
     } else { random_costs[i,1:n_samples] = patient_infor$fcosts[bootstrap_samples[i, ]]+PSA_results[bootstrap_samples[i, ],2]}
   }
-  else {random_costs[i,1:n_samples] = patient_infor$bcosts[bootstrap_samples[i, ]]}
+  else {random_costs[i,1:n_samples] = shortterm$patient_infor.costs[bootstrap_samples[i, ]]}
 }
 
 nalist = c(which(rowSums(is.na(random_costs)) > 0))
 for(a in nalist){
-  random_costs[a,is.na(random_costs[a,])] = patient_infor$bcosts[bootstrap_samples[a,is.na(random_costs[a, -1])]]
+  random_costs[a,is.na(random_costs[a,])] = shortterm$patient_infor.costs[bootstrap_samples[a,is.na(random_costs[a, ])]]
 }
 
 # calculate the mean of costs and QALYs for each column
@@ -87,4 +88,3 @@ nb_vfrac = 2000*random_QALYs - random_costs
 write.csv(nb_vfrac, 'results/nb_vfrac.csv')
 write.csv(costs_mean, 'results/longterm_vfrac_costs.csv')
 write.csv(qalys_mean, 'results/longterm_vfrac_qalys.csv')
-

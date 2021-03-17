@@ -4,6 +4,11 @@ library(dplyr)
 
 patient_infor_raw = read.csv('results/qalys and costs.csv')
 PSA_results = read_excel('data/PSA mean costs and qalys.xlsx')
+shortterm_eq5d = read.csv('results/shortterm-standard-eq5d.csv')
+shortterm_costs = read.csv('results/shortterm-standard-costs.csv')
+
+st_eq5d_mean = rowMeans(shortterm_eq5d)
+st_costs_mean = rowMeans(shortterm_costs)
 # Drop rows without mrbackpainbas variable
 patient_infor=patient_infor_raw%>% drop_na(69) 
 
@@ -90,7 +95,7 @@ for(i in Total_samples_QALYs$leftjoin_qalys...2.){
     # Choosing the bootstrap sample corresponding to patient i
     # HT: Yixin, I changed the column range from 2:n_samples+1 to 2:(n_samples+1) as otherwise undercounts by 1
     Total_samples_QALYs[match(i,Total_samples_QALYs$leftjoin_qalys...2.),2:(n_samples+1)] = 
-      patient_infor$beq5d_score[bootstrap_samples[which(Total_samples_QALYs$leftjoin_qalys...2.==i), ]]*0.25}
+      st_eq5d_mean[bootstrap_samples[which(Total_samples_QALYs$leftjoin_qalys...2.==i), ]]*0.25}
   
   
   # What you'll want is to sample the baseline QALYs randomly
@@ -102,12 +107,12 @@ for(i in Total_samples_QALYs$leftjoin_qalys...2.){
 # HT: Yixin, the line below needs to include a bootstrap as well.
 # At the moment you're using the observed QALY for patient a but you need to instead randomly
 # sample (with replacement these QALYs. Use the bootstrap_samples[a, ] so use:
-#  Total_samples_QALYs[a,is.na(Total_samples_QALYs[a,])] =   patient_infor$beq5d_score[bootstrap_samples[a,is.na(Total_samples_QALYs[a, -1])]]
+#  Total_samples_QALYs[a,is.na(Total_samples_QALYs[a,])] =   st_eq5d_mean[bootstrap_samples[a,is.na(Total_samples_QALYs[a, -1])]]
 # And make this change in the costs as well
 # change NA data to baseline QALYs
 nalist = c(which(rowSums(is.na(Total_samples_QALYs)) > 0))
 for(a in nalist){
-  Total_samples_QALYs[a,is.na(Total_samples_QALYs[a,])] =   patient_infor$beq5d_score[bootstrap_samples[a,is.na(Total_samples_QALYs[a, -1])]]
+  Total_samples_QALYs[a,is.na(Total_samples_QALYs[a,])] =   st_eq5d_mean[bootstrap_samples[a,is.na(Total_samples_QALYs[a, -1])]]
 }
 
 # Add the IDs to the costs data
@@ -123,7 +128,7 @@ for(i in Total_samples_costs$leftjoin_costs...2.){
     # replace NA in Total_samples_costs with bcosts
     # Choosing the bootstrap sample corresponding to patient i
     Total_samples_costs[match(i,Total_samples_costs$leftjoin_costs...2.),2:n_samples+1] = 
-      patient_infor$bcosts[bootstrap_samples[which(Total_samples_costs$leftjoin_costs...2.==i), ]]}
+      st_costs_mean[bootstrap_samples[which(Total_samples_costs$leftjoin_costs...2.==i), ]]}
   
   
   
@@ -133,7 +138,7 @@ for(i in Total_samples_costs$leftjoin_costs...2.){
 # change NA data to baseline costs
 nalist = c(which(rowSums(is.na(Total_samples_costs)) > 0))
 for(a in nalist){
-  Total_samples_costs[a,is.na(Total_samples_costs[a,])] =   patient_infor$bcosts[bootstrap_samples[a,is.na(Total_samples_costs[a, -1])]]
+  Total_samples_costs[a,is.na(Total_samples_costs[a,])] =   st_costs_mean[bootstrap_samples[a,is.na(Total_samples_costs[a, -1])]]
 }
 
 # calculate the mean QALYs of each dataset and add into Total_samples_eq5d as a new row
@@ -160,6 +165,6 @@ nb_standard_of_care_raw = data.frame(Total_samples_QALYs*2000 - Total_samples_co
 nb_standard_of_care = nb_standard_of_care_raw[,2:1001]
 
 
-write.csv(nb_standad_of_care, 'results/nb_standad_of_care.csv')
+write.csv(nb_standard_of_care, 'results/nb_standad_of_care.csv')
 write.csv(Total_samples_QALYs_mean, 'results/longterm_standard_qalys.csv')
 write.csv(Total_samples_costs_mean, 'results/longterm_standard_costs.csv')
