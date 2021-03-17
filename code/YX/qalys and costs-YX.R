@@ -1,4 +1,5 @@
 library(readxl)
+library(writexl)
 library(dplyr)
 library(tidyverse)
 
@@ -69,9 +70,6 @@ average_daily_durgs_costs = 0.362*drugs_cost[1,7]+0.121*drugs_cost[2,7]+0.087*dr
 #set distribution
 distribution1 = runif(1429, min = 1, max = 3.5)
 distribution2 = runif(1429, min = 3.5, max = 7)
-
-
-
 #
 
 
