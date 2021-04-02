@@ -67,8 +67,8 @@ patient_infor$feq5d_score = feq5d_score
 average_daily_durgs_costs = 0.362*drugs_cost[1,7]+0.121*drugs_cost[2,7]+0.087*drugs_cost[3,7]+0.087*drugs_cost[4,7]+0.071*drugs_cost[5,7]+0.061*drugs_cost[6,7]+0.053*drugs_cost[7,7]+0.051*drugs_cost[8,7]
 #weekly drugs dose
 #set distribution
-distribution1 = data.frame(runif(1429, min = 1, max = 3.5))
-distribution2 = data.frame(runif(1429, min = 3.5, max = 7))
+distribution1 = data.frame(rnorm(n = 1429, mean = 2.25, sd = 0.638))
+distribution2 = data.frame(rnorm(n = 1429, mean = 5.25, sd = 0.638))
 
 
 
@@ -100,9 +100,9 @@ for (i in 1:nrow(patient_infor)){
   else if (patient_infor$b28painmedfreq[i] == 0){
     patient_infor$bcosts[i] = bcosts[i]+0}
   else if (patient_infor$b28painmedfreq[i] == 1){
-    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$runif.1429..min...1..max...3.5.[i]}
+    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$rnorm.n...1429..mean...2.25..sd...0.638.[i]}
   else if (patient_infor$b28painmedfreq[i] >= 2){
-    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$runif.1429..min...3.5..max...7.[i]}
+    patient_infor$bcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$rnorm.n...1429..mean...5.25..sd...0.638.[i]}
 }
 
 patient_infor$bcosts = as.numeric(patient_infor$bcosts)
@@ -116,9 +116,9 @@ for (i in 1:nrow(patient_infor)){
   else if (patient_infor$f13painmedfreq[i] == 0){
     patient_infor$fcosts[i] = bcosts[i]+0}
   else if (patient_infor$f13painmedfreq[i] == 1){
-    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$runif.1429..min...1..max...3.5.[i]*90/7}
+    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution1$rnorm.n...1429..mean...2.25..sd...0.638.[i]*90/7}
   else if (patient_infor$f13painmedfreq[i] >= 2){
-    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$runif.1429..min...3.5..max...7.[i]*90/7}
+    patient_infor$fcosts[i] = bcosts[i] + average_daily_durgs_costs*distribution2$rnorm.n...1429..mean...5.25..sd...0.638.[i]*90/7}
 }
 patient_infor$fcosts = as.numeric(patient_infor$fcosts)
 
