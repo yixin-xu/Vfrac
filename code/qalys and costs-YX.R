@@ -1,3 +1,6 @@
+### Calculate the baseline and follow-up costs and qalys
+### Step 1 code
+
 library(readxl)
 library(dplyr)
 library(tidyverse)

@@ -1,8 +1,10 @@
+### Estimate the costs, QALYs and net benefit of the long term vfrac tool. 
+### Step 3, after running the "qalys and costs", "shortterm standard" and "shortterm vfrac" code
+
 library(tidyverse)
 library(readxl)
 library(dplyr)
 library(survival)
-
 
 patient_infor_raw = read.csv('results/qalys and costs.csv')
 PSA_results = as.data.frame(read_excel('data/PSA mean costs and qalys.xlsx'))

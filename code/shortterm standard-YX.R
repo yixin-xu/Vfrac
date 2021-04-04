@@ -1,3 +1,7 @@
+### Estimate the costs and qalys of short term standard of care.
+### Step 2, after running "qalys and costs" code
+
+
 library(tidyverse)
 library(readxl)
 
