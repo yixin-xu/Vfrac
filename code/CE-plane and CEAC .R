@@ -1,3 +1,8 @@
+### Cost-effectiveness analysis
+### Draw CE-plane and CEAC
+### Step 4, after running "qalys and costs", "shortterm vfrac", "shortterm standard", "longterm standard" and "long term SoC" code
+ 
+
 library(readxl)
 library(dplyr)
 library(BCEA)
