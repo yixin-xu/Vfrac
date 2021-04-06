@@ -107,6 +107,6 @@ shortterm_SoC = rbind(Total_samples_costs_mean,Total_samples_qalys_mean)
 
 write.csv(Total_samples_qalys, 'results/shortterm-standard-qalys.csv')
 write.csv(Total_samples_costs, 'results/shortterm-standard-costs.csv')
-write.csv(shortterm_SoC, 'results/shortterm-standaed-mean C&Q')
+write.csv(shortterm_SoC, 'results/shortterm-standard-mean C&Q')
 
 
