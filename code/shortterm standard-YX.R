@@ -67,23 +67,21 @@ T6 = left_join(patient_infor, random_eq5d, by ='xvfracid')
 # Combine IDs with sampled eq5d
 # T7 is same as random_eq5d but with NA for patients without GP referral
 T7 = data.frame(T6[, 2], T6[, 74:1073])
+rownames(T7) <- T7$T6...2.
 
 # Same for costs
 random_costs$xvfracid = random_costs$gp_xvfracid
 T8 = left_join(patient_infor, random_costs, by ='xvfracid')
 T9 = data.frame(T8[, 2], T8[, 74:1073])
+rownames(T9) <- T9$T8...2.
 
-# Loop through the patients
-# Note that T7$T6...2. is the same as T9$T8...2.
-for(i in T7$T6...2.){
-  # If i was one of the patients without a GP referal
-  # Set to baseline EQ5D
-  if(i %in% random_eq5d$gp_xvfracid == FALSE){
-    T7[match(i,T7$T6...2.),2:1001] = patient_infor$beq5d_score[bootstrap_samples[toString(i),]]
-    T9[match(i,T9$T8...2.),2:1001] = patient_infor$bcosts[bootstrap_samples[toString(i),]]
-  }
-}
 
+# If i was one of the patients without a GP referal
+# Set to baseline EQ5D and baseline costs
+T7[unlist(lapply(notgp_xvfracid, toString)), 2:1001] = 
+  patient_infor$beq5d_score[bootstrap_samples[unlist(lapply(notgp_xvfracid, toString)),]]
+T9[unlist(lapply(notgp_xvfracid, toString)), 2:1001] = 
+  patient_infor$bcosts[bootstrap_samples[unlist(lapply(notgp_xvfracid, toString)),]]
 
 
 Total_samples_qalys = T7[,2:1001]*0.25
@@ -102,7 +100,6 @@ quantile(Total_samples_costs_mean,.025)
 quantile(Total_samples_costs_mean,.975)
 
 shortterm_SoC = rbind(Total_samples_costs_mean,Total_samples_qalys_mean)
-
 
 
 write.csv(Total_samples_qalys, 'results/shortterm-standard-qalys.csv')
