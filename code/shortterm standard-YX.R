@@ -18,26 +18,39 @@ gp_xvfracid = patient_infor$xvfracid[patient_infor$mrbackpainbas == 1]
 # corresponds to each of 1000 sampled values.
 random_eq5d = data.frame(gp_xvfracid)
 random_costs = data.frame(gp_xvfracid)
+# Prebuild the full matrix to reduce runtime (changing a dataframe is slow so the loop below is 
+# slower without these two lines)
+random_eq5d <- cbind(random_eq5d, matrix(nrow = dim(random_eq5d)[1], ncol = n_samples))
+random_costs <- cbind(random_costs, matrix(nrow = dim(random_costs)[1], ncol = n_samples))
+# Give rows meaningful names
+rownames(random_eq5d) <- rownames(random_costs) <- gp_xvfracid
 
 # Use xvfyncode to identify which patients have a fracture
 
 # Proportion referred by GP for x-ray is a random variable
 prop_referred <- rnorm(n_samples, mean = 0.20, sd = 0.05)
 
-# Generate 1000 random samples assuming X% are referred for x-ray
+
 for(i in 1:1000){
+  print(i)
   # Random sample referred for x-ray
-  randomsample = sample(gp_xvfracid, size = round(prop_referred[i] * length(gp_xvfracid)), replace = TRUE) # Should be replace = TRUE
-  for (a in gp_xvfracid){
-    # If referred use follow-up EQ5D and cost
-    # If not referred use baseline
-    if(a %in% randomsample){
-      random_eq5d[match(a,gp_xvfracid),i+1] = patient_infor$feq5d_score[patient_infor$xvfracid == a]
-    } else{random_eq5d[match(a,gp_xvfracid),i+1] = patient_infor$beq5d_score[patient_infor$xvfracid == a]}
-    if(a %in% randomsample){
-      random_costs[match(a,gp_xvfracid),i+1] = patient_infor$fcosts[patient_infor$xvfracid == a]
-    } else{random_costs[match(a,gp_xvfracid),i+1] = patient_infor$bcosts[patient_infor$xvfracid == a]}
-  }
+  # Sampled without replacement because assigning costs to each actual patient 
+  randomsample = sample(gp_xvfracid, size = round(prop_referred[i] * length(gp_xvfracid)), replace = FALSE) 
+  # Patients not referred for x-ray
+  randomsample_notreferred <- gp_xvfracid[!is.element(gp_xvfracid, randomsample)]
+  
+  # If referred use follow-up EQ5D and cost
+  random_eq5d[unlist(lapply(randomsample, toString)), i+1] <-
+    patient_infor$feq5d_score[is.element(patient_infor$xvfracid, randomsample)]
+  random_costs[unlist(lapply(randomsample, toString)), i+1] <-
+    patient_infor$fcosts[is.element(patient_infor$xvfracid, randomsample)]
+  
+  # If not referred use baseline EQ5D and cost
+  
+  random_eq5d[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
+    patient_infor$beq5d_score[is.element(patient_infor$xvfracid, randomsample_notreferred)]
+  random_costs[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
+    patient_infor$bcosts[is.element(patient_infor$xvfracid, randomsample_notreferred)]
 }
 
 # Add the IDs to the EQ5D data
