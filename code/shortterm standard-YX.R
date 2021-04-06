@@ -12,6 +12,8 @@ patient_infor=patient_infor_raw%>% drop_na(69)
 # Filter to only patients who have a consultation for back pain during 
 # the 3 months before enrolment in the study
 gp_xvfracid = patient_infor$xvfracid[patient_infor$mrbackpainbas == 1]
+# And identify those without GP consultation
+notgp_xvfracid <- patient_infor$xvfracid[patient_infor$mrbackpainbas == 0]
 
 # Patient IDs
 # The final dataframe will have one row for each patient and each column
