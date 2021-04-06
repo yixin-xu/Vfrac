@@ -18,11 +18,17 @@ n_samples = 1000
 random_QALYs = data.frame(matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples))
 random_costs = data.frame(matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples))
 
-# set bootstrap
+# set bootstrap - thee are resamples of patient ID
 bootstrap_samples <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
 for(i in 1:dim(bootstrap_samples)[1]) {
   bootstrap_samples[i, ] <- sample(1:length(patient_infor$xvfracid), size = n_samples)
 }
+# set bootstrap for long term - these are resamples of PSA samples
+bootstrap_samples_longterm <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_longterm)[1]) {
+  bootstrap_samples_longterm[i, ] <- sample(1:n_samples, size = n_samples)
+}
+rownames(bootstrap_samples_longterm) <- patient_infor$xvfracid
 
 
 # If vfyncode and XVfracscreen are both yes, long-term costs and QALYs are short-term costs and QALYs add PSA results, else long-term costs and QALYs are short-term costs and QALYs
@@ -45,7 +51,7 @@ for(i in 1:nrow(patient_infor)){
     if (patient_infor$vfyncode[i] == "Yes"){
       # Have a fracture then get treatment
       random_QALYs[i,1:n_samples] = 
-        patient_infor$feq5d_score[bootstrap_samples[i, ]]*0.25 + PSA_results[bootstrap_samples[i, ],5]
+        patient_infor$feq5d_score[bootstrap_samples[i, ]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],5]
     } else { 
       # No fracture so no additional costs
       random_QALYs[i,1:n_samples] = 
@@ -56,7 +62,7 @@ for(i in 1:nrow(patient_infor)){
     if (patient_infor$vfyncode[i] == T) {
       # Have a fracture but don't get treatment so add no treatment QALYs
       random_QALYs[i,1:n_samples] = 
-        patient_infor$beq5d_score[bootstrap_samples[i, ]]*0.25 + PSA_results[bootstrap_samples[i, ],3]
+        patient_infor$beq5d_score[bootstrap_samples[i, ]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],3]
     } else {
       # No fracture so no additional costs
       random_QALYs[i,1:n_samples] = patient_infor$beq5d_score[bootstrap_samples[i, ]]*0.25
@@ -73,7 +79,7 @@ for(i in 1:nrow(patient_infor)){
     if (patient_infor$vfyncode[i] == "Yes"){
       # Has a fracture and diagnosed so treatment cost
       random_costs[i,1:n_samples] = 
-        patient_infor$fcosts[bootstrap_samples[i, ]] + PSA_results[bootstrap_samples[i, ],4]
+        patient_infor$fcosts[bootstrap_samples[i, ]] + PSA_results[bootstrap_samples_longterm[i, ],4]
     } else { 
       # No fracture so no additional cost
       random_costs[i,1:n_samples] = 
@@ -83,7 +89,7 @@ for(i in 1:nrow(patient_infor)){
     if (patient_infor$vfyncode[i] == T){
       # Has a fracture but not diagnosed so add no treatment costs
       random_costs[i,1:n_samples] = 
-        patient_infor$bcosts[bootstrap_samples[i, ]] + PSA_results[bootstrap_samples[i, ],2] 
+        patient_infor$bcosts[bootstrap_samples[i, ]] + PSA_results[bootstrap_samples_longterm[i, ],2] 
     } else {
       # No fracture so no additional cost
       random_costs[i,1:n_samples] = patient_infor$bcosts[bootstrap_samples[i, ]]  
