@@ -5,6 +5,7 @@
 library(tidyverse)
 library(readxl)
 
+n_samples = 1000
 patient_infor_raw = read.csv('results/qalys and costs.csv')
 # Drop rows without mrbackpainbas variable
 patient_infor=patient_infor_raw%>% drop_na(69)
@@ -73,6 +74,7 @@ T7 = data.frame(T6[, 2], T6[, 74:1073])
 rownames(T7) <- T7$T6...2.
 
 # Same for costs
+colnames(random_costs)[colnames(random_costs) == "gp_xvfracid"] <- "xvfracid"
 random_costs$xvfracid = random_costs$gp_xvfracid
 T8 = left_join(patient_infor, random_costs, by ='xvfracid')
 T9 = data.frame(T8[, 2], T8[, 74:1073])
