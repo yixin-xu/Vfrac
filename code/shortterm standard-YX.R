@@ -27,7 +27,7 @@ prop_referred <- rnorm(n_samples, mean = 0.20, sd = 0.05)
 # Generate 1000 random samples assuming X% are referred for x-ray
 for(i in 1:1000){
   # Random sample referred for x-ray
-  randomsample = sample(gp_xvfracid, size = round(prop_referred * length(gp_xvfracid)), replace = F) # Should be replace = TRUE
+  randomsample = sample(gp_xvfracid, size = round(prop_referred[i] * length(gp_xvfracid)), replace = F) # Should be replace = TRUE
   for (a in gp_xvfracid){
     # If referred use follow-up EQ5D and cost
     # If not referred use baseline
