@@ -47,17 +47,18 @@ for(i in 1:1000){
   randomsample_notreferred <- gp_xvfracid[!is.element(gp_xvfracid, randomsample)]
   
   # If referred use follow-up EQ5D and cost
+  # Use bootstrap sample i for each patient
   random_eq5d[unlist(lapply(randomsample, toString)), i+1] <-
-    patient_infor$feq5d_score[is.element(patient_infor$xvfracid, randomsample)]
+    patient_infor$feq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample), i]]
   random_costs[unlist(lapply(randomsample, toString)), i+1] <-
-    patient_infor$fcosts[is.element(patient_infor$xvfracid, randomsample)]
-  
+    patient_infor$fcosts[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample), i]]
+    
   # If not referred use baseline EQ5D and cost
-  
+  # Again use bootstrap sample i for each patient
   random_eq5d[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
-    patient_infor$beq5d_score[is.element(patient_infor$xvfracid, randomsample_notreferred)]
+    patient_infor$beq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample_notreferred), i]]
   random_costs[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
-    patient_infor$bcosts[is.element(patient_infor$xvfracid, randomsample_notreferred)]
+    patient_infor$bcosts[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample_notreferred), i]]
 }
 
 # Rename the IDs to match with patient_infor
