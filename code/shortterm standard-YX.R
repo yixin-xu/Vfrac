@@ -30,6 +30,13 @@ rownames(random_eq5d) <- rownames(random_costs) <- gp_xvfracid
 # Proportion referred by GP for x-ray is a random variable
 prop_referred <- rnorm(n_samples, mean = 0.20, sd = 0.05)
 
+# set bootstrap
+bootstrap_samples <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples)[1]) {
+  bootstrap_samples[i, ] <- sample(1:length(patient_infor$xvfracid), size = n_samples)
+}
+rownames(bootstrap_samples) <- patient_infor$xvfracid
+
 
 for(i in 1:1000){
   print(i)
@@ -53,29 +60,31 @@ for(i in 1:1000){
     patient_infor$bcosts[is.element(patient_infor$xvfracid, randomsample_notreferred)]
 }
 
-# Add the IDs to the EQ5D data
-random_eq5d$xvfracid = random_eq5d$gp_xvfracid
+# Rename the IDs to match with patient_infor
+colnames(random_eq5d)[colnames(random_eq5d) == "gp_xvfracid"] <- "xvfracid"
 
 T6 = left_join(patient_infor, random_eq5d, by ='xvfracid')
 # Combine IDs with sampled eq5d
-T7 = data.frame(T6[, 2], T6[, 75:1074])
+# T7 is same as random_eq5d but with NA for patients without GP referral
+T7 = data.frame(T6[, 2], T6[, 74:1073])
 
-# Loop through the patients
-for(i in T7$T6...2.){
-  # If i was one of the patients with a GP referal
-  if(i %in% random_eq5d$gp_xvfracid == FALSE){
-    # Not sure why it's being set to the baseline score?
-    T7[match(i,T7$T6...2.),2:1001] = patient_infor$beq5d_score[patient_infor$xvfracid == i]}
-}
-
+# Same for costs
 random_costs$xvfracid = random_costs$gp_xvfracid
 T8 = left_join(patient_infor, random_costs, by ='xvfracid')
-T9 = data.frame(T8[, 2], T8[, 75:1074])
+T9 = data.frame(T8[, 2], T8[, 74:1073])
 
-for(i in T9$T8...2.){
-  if(i %in% random_costs$gp_xvfracid == FALSE){
-    T9[match(i,T9$T8...2.),2:1001] = patient_infor$bcosts[patient_infor$xvfracid == i]}
+# Loop through the patients
+# Note that T7$T6...2. is the same as T9$T8...2.
+for(i in T7$T6...2.){
+  # If i was one of the patients without a GP referal
+  # Set to baseline EQ5D
+  if(i %in% random_eq5d$gp_xvfracid == FALSE){
+    T7[match(i,T7$T6...2.),2:1001] = patient_infor$beq5d_score[bootstrap_samples[toString(i),]]
+    T9[match(i,T9$T8...2.),2:1001] = patient_infor$bcosts[bootstrap_samples[toString(i),]]
+  }
 }
+
+
 
 Total_samples_qalys = T7[,2:1001]*0.25
 Total_samples_costs = T9[,2:1001]
