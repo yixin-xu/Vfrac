@@ -76,11 +76,11 @@ rownames(bootstrap_samples_longterm) <- patient_infor$xvfracid
     # If not recommended an x-ray by vfrac use baseline EQ5D and cost
     # Use bootstrap sample i for each patient
     random_QALYs[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i] <-
-      patient_infor$feq5d_score[bootstrap_samples_recommended_diagnosed[is.element(recommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25
-      + PSA_results[bootstrap_samples_longterm[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i],5]
+      patient_infor$feq5d_score[bootstrap_samples_recommended_diagnosed[is.element(recommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25+
+      PSA_results[bootstrap_samples_longterm[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i],5]
     random_costs[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i] <-
-      patient_infor$fcosts[bootstrap_samples_recommended_diagnosed[is.element(recommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]
-    + PSA_results[bootstrap_samples_longterm[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i],4]
+      patient_infor$fcosts[bootstrap_samples_recommended_diagnosed[is.element(recommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]+
+      PSA_results[bootstrap_samples_longterm[unlist(lapply(recommended_diagnosed$xvfracid, toString)), i],4]
      
     random_QALYs[unlist(lapply(recommended_notdiagnosed$xvfracid, toString)), i] <-
       patient_infor$feq5d_score[bootstrap_samples_recommended_notdiagnosed[is.element(recommended_notdiagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25
@@ -88,11 +88,11 @@ rownames(bootstrap_samples_longterm) <- patient_infor$xvfracid
       patient_infor$fcosts[bootstrap_samples_recommended_notdiagnosed[is.element(recommended_notdiagnosed$xvfracid, patient_infor$xvfracid), i]]
      
     random_QALYs[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i] <-
-      patient_infor$beq5d_score[bootstrap_samples_notrecommended_diagnosed[is.element(notrecommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25
-    +  PSA_results[bootstrap_samples_longterm[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i],3]
+      patient_infor$beq5d_score[bootstrap_samples_notrecommended_diagnosed[is.element(notrecommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25+
+      PSA_results[bootstrap_samples_longterm[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i],3]
    random_costs[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i] <-
-     patient_infor$bcosts[bootstrap_samples_notrecommended_diagnosed[is.element(notrecommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]
-    + PSA_results[bootstrap_samples_longterm[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i],2]
+     patient_infor$bcosts[bootstrap_samples_notrecommended_diagnosed[is.element(notrecommended_diagnosed$xvfracid, patient_infor$xvfracid), i]]+
+     PSA_results[bootstrap_samples_longterm[unlist(lapply(notrecommended_diagnosed$xvfracid, toString)), i],2]
      
     random_QALYs[unlist(lapply(notrecommended_notdiagnosed$xvfracid, toString)), i] <-
       patient_infor$beq5d_score[bootstrap_samples_notrecommended_notdiagnosed[is.element(notrecommended_notdiagnosed$xvfracid, patient_infor$xvfracid), i]]*0.25

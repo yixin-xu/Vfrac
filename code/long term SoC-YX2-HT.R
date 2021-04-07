@@ -127,7 +127,40 @@ random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfynco
 random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
   patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
 
+#### QALYs for patients who did not have gp consultation
+for(i in 1:nrow(patient_infor)){
+  print(paste("Calculating for patient",i, "/",nrow(patient_infor)))
+  
+  if(patient_infor$mrbackpainbas[i] == 0){
+    # Do not have an x-ray
+    if (patient_infor$vfyncode[i] == "Yes") {
+      # Have a fracture but don't get treatment so add no treatment QALYs
+      random_QALYs[i,2:n_samples+1] = 
+        patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[i, ]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],3]
+    } else {
+      # No fracture so no additional costs
+      random_QALYs[i,2:n_samples+1] = patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[i, ]]*0.25
+    }
+  }
+}
 
+#### Costs for patients who did not have gp consultation
+
+for(i in 1:nrow(patient_infor)){
+  print(paste("Calculating for patient",i, "/",nrow(patient_infor)))
+  
+  if( patient_infor$mrbackpainbas[i] == 0 ) {
+    # Do not have an x-ray
+    if (patient_infor$vfyncode[i] == "Yes") {
+      # Have a fracture but don't get treatment so add no treatment QALYs
+      random_costs[i,2:n_samples+1] = 
+        patient_infor$bcosts[bootstrap_samples_notgp_diagnosed[i, ]] + PSA_results[bootstrap_samples_longterm[i, ],2]
+    } else {
+      # No fracture so no additional costs
+      random_costs[i,2:n_samples+1] = patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[i, ]]
+    }
+  }
+}
 
 # calculate the mean QALYs and costs of each dataset 
 random_QALYs_mean = colMeans(random_QALYs[,2:1001], na.rm = TRUE)
