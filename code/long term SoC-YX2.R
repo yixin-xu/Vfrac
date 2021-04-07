@@ -37,12 +37,35 @@ prop_referred[prop_referred < 0] <- 0
 prop_referred[prop_referred > 1] <- 1
 
 
-# set bootstrap for short term - these are resamples of patient IDs
-bootstrap_samples <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
-for(i in 1:dim(bootstrap_samples)[1]) {
-  bootstrap_samples[i, ] <- sample(1:length(patient_infor$xvfracid), size = n_samples)
+gp_notdiagnosed = patient_infor[patient_infor$mrbackpainbas =="1"&patient_infor$vfyncode =="No",]
+notgp_notdiagnosed = patient_infor[patient_infor$mrbackpainbas =="0"&patient_infor$vfyncode =="No",]
+gp_diagnosed = patient_infor[patient_infor$mrbackpainbas =="1"&patient_infor$vfyncode =="Yes",]
+notgp_diagnosed = patient_infor[patient_infor$mrbackpainbas =="0"&patient_infor$vfyncode =="Yes",]
+
+# set bootstrap for different types of patients
+bootstrap_samples_gp_notdiagnosed <- matrix(NA, nrow = length(gp_notdiagnosed$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_gp_notdiagnosed)[1]) {
+  bootstrap_samples_gp_notdiagnosed[i, ] <- sample(1:length(gp_notdiagnosed$xvfracid), size = n_samples, replace = TRUE)
 }
-rownames(bootstrap_samples) <- patient_infor$xvfracid
+rownames(bootstrap_samples_gp_notdiagnosed) <- gp_notdiagnosed$xvfracid
+
+bootstrap_samples_notgp_notdiagnosed <- matrix(NA, nrow = length(notgp_notdiagnosed$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_notgp_notdiagnosed)[1]) {
+  bootstrap_samples_notgp_notdiagnosed[i, ] <- sample(1:length(notgp_notdiagnosed$xvfracid), size = n_samples, replace = TRUE)
+}
+rownames(bootstrap_samples_notgp_notdiagnosed) <- notgp_notdiagnosed$xvfracid
+
+bootstrap_samples_gp_diagnosed <- matrix(NA, nrow = length(gp_diagnosed$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_gp_diagnosed)[1]) {
+  bootstrap_samples_gp_diagnosed[i, ] <- sample(1:length(gp_diagnosed$xvfracid), size = n_samples, replace = TRUE)
+}
+rownames(bootstrap_samples_gp_diagnosed) <- gp_diagnosed$xvfracid
+
+bootstrap_samples_notgp_diagnosed <- matrix(NA, nrow = length(notgp_diagnosed$xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_notgp_diagnosed)[1]) {
+  bootstrap_samples_notgp_diagnosed[i, ] <- sample(1:length(notgp_diagnosed$xvfracid), size = n_samples, replace = TRUE)
+}
+rownames(bootstrap_samples_notgp_diagnosed) <- notgp_diagnosed$xvfracid
 
 # set bootstrap for long term - these are resamples of PSA samples
 bootstrap_samples_longterm <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
@@ -65,48 +88,81 @@ rownames(bootstrap_samples_longterm) <- patient_infor$xvfracid
 
 ### QALYs and costs for patients had gp consultation
 
-for(i in 1:1000) {
+for(i in 1:1000){
   print(i)
   # Random sample referred for x-ray
   randomsample = sample(gp_xvfracid, size = length(gp_xvfracid) * prop_referred[i], replace = F)
   # Patients not referred for x-ray
   randomsample_notreferred <- gp_xvfracid[!is.element(gp_xvfracid, randomsample)]
   
-  # Have a fracture then get treatment
-  random_QALYs[unlist(intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],lapply(randomsample, toString))), i+1] <-
-        patient_infor$feq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample)), i]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],5]
-  random_QALYs[unlist(intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],lapply(randomsample_notreferred, toString))), i+1] <-
-        patient_infor$beq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample_notreferred)), i]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],3]
-         
-} 
+  random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample, toString))), i+1] <-
+        patient_infor$feq5d_score[bootstrap_samples_gp_diagnosed[is.element(patient_infor$xvfracid,intersect( patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample)), i]]*0.25      
+        + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample, toString))) ,i],5] 
 
-   
+   random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample_notreferred, toString))), i+1] <-
+        patient_infor$beq5d_score[bootstrap_samples_gp_diagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample_notreferred)), i]]*0.25 
+        + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample_notreferred, toString))), i],3]
+
+  random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(randomsample, toString))), i+1] <-
+    patient_infor$feq5d_score[bootstrap_samples_gp_notdiagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "No"],randomsample)), i]]*0.25 
+  random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(randomsample_notreferred, toString))), i+1] <-
+    patient_infor$beq5d_score[bootstrap_samples_gp_notdiagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "No"],randomsample_notreferred)), i]]*0.25 
+     
+  random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample, toString))), i+1] <-
+       patient_infor$fcosts[bootstrap_samples_gp_diagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample)), i]] 
+     + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample, toString))) ,i],4] 
+  random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample_notreferred, toString))), i+1] <-
+       patient_infor$bcosts[bootstrap_samples_gp_diagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"],randomsample_notreferred)), i]] 
+     + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(randomsample_notreferred, toString))), i],2]
+  
+  random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(randomsample, toString))), i+1] <-
+    patient_infor$fcosts[bootstrap_samples_gp_notdiagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "No"],randomsample)), i]] 
+  random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(randomsample_notreferred, toString))), i+1] <-
+    patient_infor$bcosts[bootstrap_samples_gp_notdiagnosed[is.element(patient_infor$xvfracid, intersect(patient_infor$xvfracid[patient_infor$vfyncode == "No"],randomsample_notreferred)), i]] 
+}     
 
 
-# else{
-#        random_QALYs[unlist(lapply(randomsample, toString)), i+1] <-
-#          patient_infor$feq5d_score[bootstrap_samples[is.element(a, randomsample), i]]*0.25 
-#        random_QALYs[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
-#          patient_infor$beq5d_score[bootstrap_samples[is.element(a, randomsample_notreferred), i]]*0.25 
-#      }
- # }
-#}
-        
-    # Costs
-#    if(a %in% randomsample){
-      # Had an x-ray
- #     if(patient_infor$vfyncode[patient_infor$xvfracid == a] == "Yes"){
-        # Have a fracture then get treatment
-#        random_costs[toString(a),i+1] = patient_infor$fcosts[patient_infor$xvfracid == a]+ PSA_results[i,4]} 
- #     else{
-        # No fracture so no additional costs
- #       random_costs[toString(a),i+1] = patient_infor$fcosts[patient_infor$xvfracid == a]}
- #   }
- #   else if(patient_infor$vfyncode[patient_infor$xvfracid == a] == "Yes"){
-      # Have a fracture but don't get treatment so add no treatment costs
- #     random_costs[toString(a),i+1] = patient_infor$bcosts[patient_infor$xvfracid == a] + PSA_results[i,2]
-#    } else{
-      # No fracture so no additional costs
-#      random_costs[toString(a),i+1] = patient_infor$bcosts[patient_infor$xvfracid == a]}
-#  }
-#}
+# QALYs and costs for patients who did not have gp consultation
+
+random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+  patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]]*0.25
+  + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],3]
+random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+  patient_infor$bcosts[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
+  + PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],2]
+
+random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+  patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
+random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+  patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
+
+
+
+# calculate the mean QALYs and costs of each dataset 
+random_QALYs_mean = colMeans(random_QALYs[,2:1001], na.rm = TRUE)
+random_costs_mean = colMeans(random_costs[,2:1001], na.rm = TRUE)
+
+
+# Calculate the final mean of QALYs and costs
+Mean_QALYs = mean(random_QALYs_mean)
+Mean_costs = mean(random_costs_mean)
+
+# Calculate 95% confidence intervals for QALYs
+quantile(random_QALYs_mean,.025, na.rm = TRUE)
+quantile(random_QALYs_mean,.975, na.rm = TRUE)
+
+# Calculate 95% confidence intervals for costs
+quantile(random_costs_mean,.025)
+quantile(random_costs_mean,.975)
+
+### NET BENEFIT
+nb_standard_of_care_raw = data.frame(random_QALYs*20000 - random_costs)
+nb_standard_of_care = nb_standard_of_care_raw[,2:1001]
+nb_mean_col = colMeans(nb_standard_of_care, na.rm = TRUE)
+mean(nb_mean_col)
+quantile(nb_mean_col,.025)
+quantile(nb_mean_col,.975)
+
+write.csv(nb_standard_of_care, 'results/nb_standard_of_care.csv')
+write.csv(random_QALYs_mean, 'results/longterm_standard_qalys.csv')
+write.csv(random_costs_mean, 'results/longterm_standard_costs.csv')

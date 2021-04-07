@@ -33,13 +33,25 @@ rownames(random_eq5d) <- rownames(random_costs) <- gp_xvfracid
 # Proportion referred by GP for x-ray is a random variable
 prop_referred <- rnorm(n_samples, mean = 0.20, sd = 0.05)
 
-# set bootstrap
-bootstrap_samples <- matrix(NA, nrow = length(patient_infor$xvfracid), ncol = n_samples)
-for(i in 1:dim(bootstrap_samples)[1]) {
-  bootstrap_samples[i, ] <- sample(1:length(patient_infor$xvfracid), size = n_samples)
-}
-rownames(bootstrap_samples) <- patient_infor$xvfracid
 
+gp_xvfracid = patient_infor[patient_infor$mrbackpainbas =="1",]
+notgp_xvfracid = patient_infor[patient_infor$mrbackpainbas =="0",]
+
+# set bootstrap
+bootstrap_samples_gp <- matrix(NA, nrow = nrow(gp_xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_gp)[1]) {
+  bootstrap_samples_gp[i, ] <- sample(1:nrow(gp_xvfracid), size = n_samples,replace = TRUE)
+}
+rownames(bootstrap_samples_gp) <- gp_xvfracid$xvfracid
+
+bootstrap_samples_notgp <- matrix(NA, nrow = nrow(notgp_xvfracid), ncol = n_samples)
+for(i in 1:dim(bootstrap_samples_notgp)[1]) {
+  bootstrap_samples_notgp[i, ] <- sample(1:nrow(notgp_xvfracid), size = n_samples,replace = TRUE)
+}
+rownames(bootstrap_samples_notgp) <- notgp_xvfracid$xvfracid
+
+gp_xvfracid = patient_infor$xvfracid[patient_infor$mrbackpainbas == 1]
+notgp_xvfracid <- patient_infor$xvfracid[patient_infor$mrbackpainbas == 0]
 
 for(i in 1:1000){
   print(i)
@@ -52,16 +64,16 @@ for(i in 1:1000){
   # If referred use follow-up EQ5D and cost
   # Use bootstrap sample i for each patient
   random_eq5d[unlist(lapply(randomsample, toString)), i+1] <-
-    patient_infor$feq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample), i]]
+    patient_infor$feq5d_score[bootstrap_samples_gp[is.element(gp_xvfracid, randomsample), i]]
   random_costs[unlist(lapply(randomsample, toString)), i+1] <-
-    patient_infor$fcosts[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample), i]]
-    
+    patient_infor$fcosts[bootstrap_samples_gp[is.element(gp_xvfracid, randomsample), i]]
+   
   # If not referred use baseline EQ5D and cost
   # Again use bootstrap sample i for each patient
   random_eq5d[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
-    patient_infor$beq5d_score[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample_notreferred), i]]
+    patient_infor$beq5d_score[bootstrap_samples_gp[is.element(gp_xvfracid, randomsample_notreferred), i]]
   random_costs[unlist(lapply(randomsample_notreferred, toString)), i+1] <-
-    patient_infor$bcosts[bootstrap_samples[is.element(patient_infor$xvfracid, randomsample_notreferred), i]]
+    patient_infor$bcosts[bootstrap_samples_gp[is.element(gp_xvfracid, randomsample_notreferred), i]]
 }
 
 # Rename the IDs to match with patient_infor
@@ -75,7 +87,7 @@ rownames(T7) <- T7$T6...2.
 
 # Same for costs
 colnames(random_costs)[colnames(random_costs) == "gp_xvfracid"] <- "xvfracid"
-random_costs$xvfracid = random_costs$gp_xvfracid
+
 T8 = left_join(patient_infor, random_costs, by ='xvfracid')
 T9 = data.frame(T8[, 2], T8[, 74:1073])
 rownames(T9) <- T9$T8...2.
@@ -84,9 +96,9 @@ rownames(T9) <- T9$T8...2.
 # If i was one of the patients without a GP referal
 # Set to baseline EQ5D and baseline costs
 T7[unlist(lapply(notgp_xvfracid, toString)), 2:1001] = 
-  patient_infor$beq5d_score[bootstrap_samples[unlist(lapply(notgp_xvfracid, toString)),]]
+  patient_infor$beq5d_score[bootstrap_samples_notgp[unlist(lapply(notgp_xvfracid, toString)),]]
 T9[unlist(lapply(notgp_xvfracid, toString)), 2:1001] = 
-  patient_infor$bcosts[bootstrap_samples[unlist(lapply(notgp_xvfracid, toString)),]]
+  patient_infor$bcosts[bootstrap_samples_notgp[unlist(lapply(notgp_xvfracid, toString)),]]
 
 
 Total_samples_qalys = T7[,2:1001]*0.25
