@@ -114,18 +114,19 @@ for(i in 1:1000){
 
 
 # QALYs and costs for patients who did not have gp consultation
+# These matrix assignments didn't work so using the for loop below instead
 
-random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
-  patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]]*0.25 +
-  PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],3]
-random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
-  patient_infor$bcosts[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]]  +
-   PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],2]
+#random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+#  patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]]*0.25 +
+#  PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],3]
+#random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+#  patient_infor$bcosts[bootstrap_samples_notgp_diagnosed[unlist(lapply(notgp_xvfracid, toString)),]]  +
+#   PSA_results[bootstrap_samples_longterm[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "Yes"], toString),lapply(notgp_xvfracid, toString))), ],2]
 
-random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
-  patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
-random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
-  patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
+#random_QALYs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+#  patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
+#random_costs[unlist(intersect(lapply(patient_infor$xvfracid[patient_infor$vfyncode == "No"], toString),lapply(notgp_xvfracid, toString))), 2:1001] = 
+#  patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[unlist(lapply(notgp_xvfracid, toString)),]] 
 
 #### QALYs for patients who did not have gp consultation
 for(i in 1:nrow(patient_infor)){
@@ -135,11 +136,11 @@ for(i in 1:nrow(patient_infor)){
     # Do not have an x-ray
     if (patient_infor$vfyncode[i] == "Yes") {
       # Have a fracture but don't get treatment so add no treatment QALYs
-      random_QALYs[i,2:n_samples+1] = 
-        patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[i, ]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],3]
+      random_QALYs[i,2:(n_samples+1)] = 
+       patient_infor$beq5d_score[bootstrap_samples_notgp_diagnosed[i, ]]*0.25 + PSA_results[bootstrap_samples_longterm[i, ],3]
     } else {
       # No fracture so no additional costs
-      random_QALYs[i,2:n_samples+1] = patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[i, ]]*0.25
+      random_QALYs[i,2:(n_samples+1)] = patient_infor$beq5d_score[bootstrap_samples_notgp_notdiagnosed[i, ]]*0.25
     }
   }
 }
@@ -153,11 +154,11 @@ for(i in 1:nrow(patient_infor)){
     # Do not have an x-ray
     if (patient_infor$vfyncode[i] == "Yes") {
       # Have a fracture but don't get treatment so add no treatment QALYs
-      random_costs[i,2:n_samples+1] = 
+      random_costs[i,2:(n_samples+1)] = 
         patient_infor$bcosts[bootstrap_samples_notgp_diagnosed[i, ]] + PSA_results[bootstrap_samples_longterm[i, ],2]
     } else {
       # No fracture so no additional costs
-      random_costs[i,2:n_samples+1] = patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[i, ]]
+      random_costs[i,2:(n_samples+1)] = patient_infor$bcosts[bootstrap_samples_notgp_notdiagnosed[i, ]]
     }
   }
 }
