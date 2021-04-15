@@ -12,8 +12,10 @@ treatment_names <- c("SoC", "Vfrac")
 n_samples <- 1000
 
 # Need to add correct values for these (e.g. £150 and -0.1)
-cost_xray <- 0
+cost_xray <- 72
 disutility_xray <- 0
+
+fracture_prevalence <- 0.12
 
 # Results from long-term economic model
 # These are for any patient with a fracture
@@ -133,7 +135,7 @@ for (i in 1:n_samples){
 EVPI <- mean(enb_perfect_info) - max(colMeans(net_benefit))
 
 # Population size (female age 65+)
-base_population = 12390000*0.51
+base_population = 12390000 * 0.51 * fracture_prevalence
 
 # Population for 10 years
 discount = 0.035
