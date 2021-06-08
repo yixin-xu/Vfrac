@@ -35,6 +35,8 @@ prop_referred[prop_referred > 1] <- 1
 # Final analysis will be per patient with fracture
 # To get this, we divide by the proportion with a fracture
 n_with_fracture <-  sum(patient_infor$vfyncode == "Yes")
+n_patients <- dim(patient_infor)[1]
+
 prop_with_fracture <- rbeta(n_samples, n_with_fracture, n_patients)
 
 
@@ -48,7 +50,6 @@ prop_frac_diagnosed <- prop_frac_undiagnosed <- prop_nofrac_referred <- matrix(N
 colnames(prop_frac_diagnosed) <- colnames(prop_frac_undiagnosed) <- 
   colnames(prop_nofrac_referred) <- treatment_names
 
-n_patients <- dim(patient_infor)[1]
 
 # For Vfrac (no uncertainty in proportion)
 n_frac_diagnosed_temp <- sum(patient_infor$xvfracscreen =="1" & patient_infor$vfyncode == "Yes")
