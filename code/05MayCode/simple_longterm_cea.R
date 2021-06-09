@@ -5,6 +5,8 @@
 # All proprotions derived from Vfrac dataaset follow beta-distributions
 
 library(readxl)
+library(tidyverse)
+library(BCEA)
 
 set.seed(154523450)
 
@@ -148,7 +150,7 @@ total_EVPI = EVPI*population
 
 ### draw picture
 
-library(BCEA)
+
 setwd('results')
 # Plot cost-effectiveness plane using base graphics
 jpeg(file = paste0('results', "ce.plane.vfrac.vs standard of care.", n_samples,".jpg"))
