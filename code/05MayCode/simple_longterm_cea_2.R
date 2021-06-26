@@ -150,19 +150,26 @@ for (i in 1:n_samples){
 # Take mean and subtract expected NB on current information to get EVPI
 EVPI <- mean(enb_perfect_info) - max(colMeans(net_benefit))
 
+back_pain_prevalence_lower <- 800/100000
+back_pain_prevalence_upper <- 1600/100000
+
 # Population size (female age 65+)
-base_population = 12390000 * 0.51 * fracture_prevalence
+base_population_lower = 12390000 * 0.51 * back_pain_prevalence_lower
+base_population_upper = 12390000 * 0.51 * back_pain_prevalence_upper
 
 # Population for 10 years
 discount = 0.035
-population = sum(base_population * ((1 / (1 + discount)^(c(0:9)))))
+population_lower = sum(base_population_lower * ((1 / (1 + discount)^(c(0:9)))))
+population_upper = sum(base_population_upper * ((1 / (1 + discount)^(c(0:9)))))
 
 # Total EVPI
-total_EVPI = EVPI*population
+total_EVPI_lower = EVPI*population_lower
+total_EVPI_upper = EVPI*population_upper
 
 
 results_matrix[c("EVPI", "Population EVPI"), "Vfrac - SoC"] <- 
-  c(format(EVPI, digits = 2), total_EVPI)
+  c(format(EVPI, digits = 2), 
+    paste0(format(total_EVPI_lower, digits = 0), " - ", format(total_EVPI_upper, digits = 0)))
 write.csv(results_matrix, file = "results/simple_longterm_results.csv")
 
 
