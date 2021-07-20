@@ -12,6 +12,13 @@ library(DirichletReg)
 
 set.seed(154523450)
 
+# Summarise results
+format_results <- function(x, n_digits = 2) {
+  paste0(format(mean(x), nsmall = n_digits, digits = n_digits), " (",
+         format(quantile(x, prob = 0.025), nsmall = n_digits, digits = n_digits), " ,",
+         format(quantile(x, prob = 0.975), nsmall = n_digits, digits = n_digits), ")")
+}
+
 treatment_names <- c("SoC", "Vfrac")
 n_samples <- 1000
 
@@ -67,6 +74,12 @@ prop_frac_diagnosed[, "Vfrac"] <- proportions_temp[, 1]
 prop_frac_undiagnosed[, "Vfrac"] <- proportions_temp[, 2]
 prop_nofrac_referred[, "Vfrac"] <-  proportions_temp[, 3] 
 
+# Export a summary for the publication
+format_results(prop_frac_diagnosed[, "Vfrac"])
+format_results(prop_frac_undiagnosed[, "Vfrac"])
+format_results(prop_nofrac_referred[, "Vfrac"])
+
+
 # For SoC assume everyone has a GP consultation but that proportion are referred for radiograph
 # Same proportion applied to those with fractures as without
 # Probability of fracture is independent of probability of radiograph referral
@@ -108,12 +121,7 @@ names(prob_ce) <- treatment_names
 prob_ce["SoC"] <- sum(net_benefit[, "SoC"] >= net_benefit[, "Vfrac"]) / n_samples
 prob_ce["Vfrac"] <- sum(net_benefit[, "Vfrac"] >= net_benefit[, "SoC"]) / n_samples
 
-# Summarise results
-format_results <- function(x, n_digits = 2) {
-  paste0(format(mean(x), nsmall = n_digits, digits = n_digits), " (",
-         format(quantile(x, prob = 0.025), nsmall = n_digits, digits = n_digits), " ,",
-         format(quantile(x, prob = 0.975), nsmall = n_digits, digits = n_digits), ")")
-}
+
 
 results_matrix <- matrix(nrow = 9, ncol = 3)
 rownames(results_matrix) <- c("OVF diagnosed", "OVF not diagnosed", 
