@@ -15,7 +15,7 @@ set.seed(154523450)
 # Summarise results
 format_results <- function(x, n_digits = 2) {
   paste0(format(mean(x), nsmall = n_digits, digits = n_digits), " (",
-         format(quantile(x, prob = 0.025), nsmall = n_digits, digits = n_digits), " ,",
+         format(quantile(x, prob = 0.025), nsmall = n_digits, digits = n_digits), ", ",
          format(quantile(x, prob = 0.975), nsmall = n_digits, digits = n_digits), ")")
 }
 
@@ -31,6 +31,22 @@ fracture_prevalence <- 0.12
 # Results from long-term economic model
 # These are for any patient with a fracture
 PSA_results = as.data.frame(read_excel('data/PSA mean costs and qalys.xlsx'))
+
+longterm_summary <- matrix(nrow = 3, ncol = 2)
+colnames(longterm_summary) <- c("Costs", "QALYs")
+rownames(longterm_summary) <- c("No treatment", "Alendronate", "Incremental Alendrenote - no treatment")
+longterm_summary[, "Costs"] <- c(format_results(PSA_results$`No treatment costs`),
+                                 format_results(PSA_results$`Alendronate costs`),
+                                 format_results(PSA_results$`Alendronate costs` -
+                                                  PSA_results$`No treatment costs`))
+
+longterm_summary[, "QALYs"] <- c(format_results(PSA_results$`No treatment qalys`, n_digits = 3),
+                                 format_results(PSA_results$`Alendronate qalys`, n_digits = 3),
+                                 format_results(PSA_results$`Alendronate qalys` -
+                                                  PSA_results$`No treatment qalys`, n_digits = 3))
+
+write.csv(longterm_summary, 'results/model longterm costs and qalys summary.csv')
+
 
 # Short term results from the Vfrac study
 patient_infor_raw = read.csv('results/qalys and costs.csv')
